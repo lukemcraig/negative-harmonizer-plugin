@@ -18,10 +18,20 @@ NegativeHarmonizerPluginAudioProcessorEditor::NegativeHarmonizerPluginAudioProce
 	tonicSlider.setSliderStyle(Slider::IncDecButtons);
 	addAndMakeVisible(tonicSlider);
 	tonicAttachment.reset(new SliderAttachment(valueTreeState, "tonic", tonicSlider));
+	
+    addAndMakeVisible(tonicLabel);
+	tonicLabel.setText("Tonic", dontSendNotification);
+	tonicLabel.attachToComponent(&tonicSlider, true);
+
 
 	octaveSlider.setSliderStyle(Slider::IncDecButtons);
 	addAndMakeVisible(octaveSlider);
 	octaveAttachment.reset(new SliderAttachment(valueTreeState, "octave", octaveSlider));
+
+	addAndMakeVisible(octaveLabel);
+	octaveLabel.setText("Octave", dontSendNotification);
+	octaveLabel.attachToComponent(&octaveSlider, true);
+
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setSize (400, 300);

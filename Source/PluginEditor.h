@@ -34,8 +34,11 @@ private:
 
 	AudioProcessorValueTreeState& valueTreeState;
 
+	Label tonicLabel;
 	Slider tonicSlider;
 	std::unique_ptr<SliderAttachment> tonicAttachment;
+
+	Label octaveLabel;
 	Slider octaveSlider;
 	std::unique_ptr<SliderAttachment> octaveAttachment;
 

@@ -3,7 +3,7 @@
 <JUCERPROJECT id="tNTwUF" name="NegativeHarmonizer" projectType="audioplug"
               jucerVersion="5.4.3" pluginCharacteristicsValue="pluginIsMidiEffectPlugin,pluginProducesMidiOut,pluginWantsMidiIn"
               pluginManufacturer="Luke M Craig" companyName="Luke M Craig"
-              cppLanguageStandard="17" version="0.1.2" pluginFormats="buildVST3"
+              cppLanguageStandard="17" version="0.1.3" pluginFormats="buildVST3"
               headerPath="C:\boost_1_70_0">
   <MAINGROUP id="VOvFjc" name="NegativeHarmonizer">
     <GROUP id="{3692DFA4-3BD9-3963-C364-262BAC44B085}" name="Source">
