@@ -14,12 +14,24 @@
 AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
 {
 	std::vector<std::unique_ptr<AudioParameterFloat>> params;
+
+	std::function<String(float value, int maximumStringLength)> noteNumToName = [
+	](float value, int maximumStringLength)
+	{
+		static constexpr char const * noteNames[] = { "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" };
+		return noteNames[static_cast<int>(value)];
+	};
 	params.push_back(std::make_unique<AudioParameterFloat>("tonic", // parameter ID
 		"Tonic", // parameter Name
 		NormalisableRange < float > (0,11,1),
-		0
+		0,
+		"",
+		AudioProcessorParameter::genericParameter,
+		noteNumToName,
+		nullptr
 		)
 	);
+
 	params.push_back(std::make_unique<AudioParameterFloat>("octave", // parameter ID
 		"Octave", // parameter Name
 		NormalisableRange < float >(-1, 9, 1),
