@@ -18,6 +18,10 @@ NegativeHarmonizerPluginAudioProcessorEditor::NegativeHarmonizerPluginAudioProce
 	tonicSlider.setSliderStyle(Slider::IncDecButtons);
 	addAndMakeVisible(tonicSlider);
 	tonicAttachment.reset(new SliderAttachment(valueTreeState, "tonic", tonicSlider));
+
+	octaveSlider.setSliderStyle(Slider::IncDecButtons);
+	addAndMakeVisible(octaveSlider);
+	octaveAttachment.reset(new SliderAttachment(valueTreeState, "octave", octaveSlider));
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setSize (400, 300);
@@ -43,5 +47,6 @@ void NegativeHarmonizerPluginAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
 	tonicSlider.setBounds(40, 30, getWidth()-60, 40);
+	octaveSlider.setBounds(40, 80, getWidth() - 60, 40);
 }
 

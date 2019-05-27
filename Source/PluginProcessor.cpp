@@ -16,8 +16,14 @@ AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
 	std::vector<std::unique_ptr<AudioParameterFloat>> params;
 	params.push_back(std::make_unique<AudioParameterFloat>("tonic", // parameter ID
 		"Tonic", // parameter Name
-		NormalisableRange < float > (1,127,1),
-		60
+		NormalisableRange < float > (0,11,1),
+		0
+		)
+	);
+	params.push_back(std::make_unique<AudioParameterFloat>("octave", // parameter ID
+		"Octave", // parameter Name
+		NormalisableRange < float >(-1, 9, 1),
+		4
 		)
 	);
 	return { params.begin(), params.end() };
@@ -26,17 +32,12 @@ AudioProcessorValueTreeState::ParameterLayout createParameterLayout()
 NegativeHarmonizerPluginAudioProcessor::NegativeHarmonizerPluginAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
 	: AudioProcessor(BusesProperties()
-#if ! JucePlugin_IsMidiEffect
-#if ! JucePlugin_IsSynth
-		.withInput("Input", AudioChannelSet::stereo(), true)
-#endif
-		.withOutput("Output", AudioChannelSet::stereo(), true)
-#endif
 	),
 #endif
 	parameters(*this, nullptr, Identifier("NegativeHarmonizer"), createParameterLayout())
 {
 	tonicParameter = parameters.getRawParameterValue("tonic");
+	octaveParameter = parameters.getRawParameterValue("octave");
 }
 
 NegativeHarmonizerPluginAudioProcessor::~NegativeHarmonizerPluginAudioProcessor()
@@ -162,34 +163,27 @@ void NegativeHarmonizerPluginAudioProcessor::processBlock (AudioBuffer<float>& b
 	MidiMessage m;
 	for (MidiBuffer::Iterator i(midiMessages); i.getNextEvent(m, time);)
 	{
-		if (m.isNoteOn())
+		if (m.isNoteOn() || m.isNoteOff())
 		{
             const auto oldNote = m.getNoteNumber();
-            const auto originalNoteDistance = mirrorAxis(*tonicParameter) - oldNote;
-            const auto newNote = mirrorAxis(*tonicParameter) + originalNoteDistance;
+            const auto originalNoteDistance = mirrorAxis(*tonicParameter, *octaveParameter) - oldNote;
+            const auto newNote = mirrorAxis(*tonicParameter, *octaveParameter) + originalNoteDistance;
 			if (newNote > 0 && newNote < 128) {
-				m = MidiMessage::noteOn(m.getChannel(), static_cast<int>(newNote), m.getVelocity());
+				if (m.isNoteOn()) {
+					m = MidiMessage::noteOn(m.getChannel(), static_cast<int>(newNote), m.getVelocity());
+				}
+				else
+				{
+					m = MidiMessage::noteOff(m.getChannel(), static_cast<int>(newNote), m.getVelocity());
+				}
 				processedMidi.addEvent(m, time);
 			}
 		}
-		else if (m.isNoteOff())
-		{
-			const auto oldNote = m.getNoteNumber();
-			const auto originalNoteDistance = mirrorAxis(*tonicParameter) - oldNote;
-			const auto newNote = mirrorAxis(*tonicParameter) + originalNoteDistance;
-			if (newNote > 0 && newNote < 128) {
-				m = MidiMessage::noteOff(m.getChannel(), static_cast<int>(newNote), m.getVelocity());
-				processedMidi.addEvent(m, time);
-			}
-		}
-		else if (m.isAftertouch())
+		else
 		{
 			processedMidi.addEvent(m, time);
 		}
-		else if (m.isPitchWheel())
-		{
-			processedMidi.addEvent(m, time);
-		}
+		
 	}
 	midiMessages.swapWith(processedMidi);
 }

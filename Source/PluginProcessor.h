@@ -55,11 +55,12 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 	//==============================================================================
-	constexpr float mirrorAxis(float tonic) { return tonic + 3.5f; };
+    static constexpr float mirrorAxis(const float tonic, const float octave) { return ((octave+1)*12) + tonic + 3.5f; };
 
 private:
     //==============================================================================
     AudioProcessorValueTreeState parameters;
 	float* tonicParameter = nullptr;
+	float* octaveParameter = nullptr;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NegativeHarmonizerPluginAudioProcessor)
 };

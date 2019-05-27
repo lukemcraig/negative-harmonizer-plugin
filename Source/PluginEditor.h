@@ -36,6 +36,8 @@ private:
 
 	Slider tonicSlider;
 	std::unique_ptr<SliderAttachment> tonicAttachment;
+	Slider octaveSlider;
+	std::unique_ptr<SliderAttachment> octaveAttachment;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NegativeHarmonizerPluginAudioProcessorEditor)    
 };
