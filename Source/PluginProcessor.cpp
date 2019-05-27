@@ -111,12 +111,14 @@ void NegativeHarmonizerPluginAudioProcessor::prepareToPlay (double sampleRate, i
 {
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
+	noteMap.clear();
 }
 
 void NegativeHarmonizerPluginAudioProcessor::releaseResources()
 {
     // When playback stops, you can use this as an opportunity to free up any
     // spare memory, etc.
+	noteMap.clear();
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -166,18 +168,30 @@ void NegativeHarmonizerPluginAudioProcessor::processBlock (AudioBuffer<float>& b
 		if (m.isNoteOn() || m.isNoteOff())
 		{
             const auto oldNote = m.getNoteNumber();
-            const auto originalNoteDistance = mirrorAxis(*tonicParameter, *octaveParameter) - oldNote;
-            const auto newNote = mirrorAxis(*tonicParameter, *octaveParameter) + originalNoteDistance;
-			if (newNote > 0 && newNote < 128) {
-				if (m.isNoteOn()) {
-					m = MidiMessage::noteOn(m.getChannel(), static_cast<int>(newNote), m.getVelocity());
+			if (m.isNoteOn()) {                
+				const auto originalNoteDistance = mirrorAxis(*tonicParameter, *octaveParameter) - oldNote;
+				const auto newNote = static_cast<int>(mirrorAxis(*tonicParameter, *octaveParameter) + originalNoteDistance);
+				// if the note is beyond the valid range, we effectively remove it
+			    if (newNote >= 0 && newNote < 128) {
+					m = MidiMessage::noteOn(m.getChannel(), newNote, m.getVelocity());
+					processedMidi.addEvent(m, time);
+                    // add the original note value to a map so we can use the correct noteOff value in the future
+					noteMap.emplace(oldNote, newNote);
 				}
-				else
-				{
-					m = MidiMessage::noteOff(m.getChannel(), static_cast<int>(newNote), m.getVelocity());
-				}
-				processedMidi.addEvent(m, time);
 			}
+			else
+			{
+                // find the original note value
+				auto mappedNoteIt = noteMap.find(oldNote);				
+				if (mappedNoteIt != noteMap.end()) {
+					// create a noteOff of the changed note
+                    const auto mappedNote = mappedNoteIt->second;
+					m = MidiMessage::noteOff(m.getChannel(), mappedNote, m.getVelocity());
+					processedMidi.addEvent(m, time);
+					noteMap.erase(mappedNoteIt);
+				}				
+			}
+						
 		}
 		else
 		{

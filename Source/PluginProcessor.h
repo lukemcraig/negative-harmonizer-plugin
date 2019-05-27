@@ -11,6 +11,7 @@
 #pragma once
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include <boost/unordered_map.hpp>
 
 //==============================================================================
 /**
@@ -58,9 +59,12 @@ public:
     static constexpr float mirrorAxis(const float tonic, const float octave) { return ((octave+1)*12) + tonic + 3.5f; };
 
 private:
+	typedef boost::unordered_map<int,int> unordered_map;
     //==============================================================================
     AudioProcessorValueTreeState parameters;
 	float* tonicParameter = nullptr;
 	float* octaveParameter = nullptr;
+
+	unordered_map noteMap;
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (NegativeHarmonizerPluginAudioProcessor)
 };
